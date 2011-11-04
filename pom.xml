@@ -29,5 +29,10 @@
       <artifactId>junit</artifactId>
       <version>4.8.2</version>
     </dependency>
+    <dependency>
+      <groupId>vuze</groupId>
+      <artifactId>vuze</artifactId>
+      <version>4700</version>
+    </dependency>  
   </dependencies>
 </project>

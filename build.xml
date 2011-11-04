@@ -32,7 +32,7 @@
 	<target name="vuze-jar-download" unless="vuze.jar.exists"
 			description="Downloads the Vuze jar file">
 		<mkdir dir="${lib.dir}"/>
-		<get src="${vuze.jar.url}" dest="${vuze.jar.path}"/>
+		<get src="${vuze.jar.url}" dest="${vuze.jar.path}" />
 	</target>
 
 	<target name="vuze-src-download" unless="vuze.src.exists"
@@ -42,8 +42,9 @@
 	</target>
 
 	<target name="vuze-download" depends="vuze-jar-download,vuze-src-download"
-			description="Downloads both the Vuze Jar and its sources" >
+		description="Downloads both the Vuze Jar and its sources" >
 	</target>
+
 	<!-- ** END OF DOWNLOAD VUZE STUFF ** -->
 
 	<!-- ** DOWNLOAD DEPENDENCIES WITH MAVEN ** -->
@@ -63,7 +64,7 @@
 	</target>
 
 	<target name="mvn-init" 
-		depends="mvn-ant-tasks-download"
+		depends="mvn-ant-tasks-download,vuze-download"
 		unless="compile.classpath" xmlns:artifact="urn:maven-artifact-ant"
 		description="Gets all the necessary libraries but vuze as specified in the pom file">
 		<typedef resource="org/apache/maven/artifact/ant/antlib.xml" 
@@ -90,11 +91,13 @@
 				<localRepository refid="local.repository"/>
 			</artifact:dependencies>
 			
-			<path id="full-classpath">
-				<path refid="classpath" />
-				<path refid="compile.classpath" />
-			</path>
+			<artifact:install file="${vuze.jar.path}">
+				<pom file="vuzepom.xml" />
+				<attach file="${vuze.src.path}" type="zip" classifier="sources"/>
+			</artifact:install>
 		</target>
+
+
 		<!-- ** END OF DOWNLOAD DEPENDENCIES WITH MAVEN ** -->
 
 		<target name="clean"
@@ -106,7 +109,7 @@
 				description="Compiles the sources">
 			<mkdir dir="${classes.dir}"/>
 			<javac srcdir="${src.dir}" destdir="${classes.dir}" 
-				   classpathref="full-classpath" />
+				   classpathref="compile.classpath" />
 		</target>
 
 		<target name="build" depends="compile"
@@ -119,7 +122,7 @@
 			<java classname="org.gudy.azureus2.ui.common.Main"
 				  fork="true" 
 				  failonerror="true" maxmemory="512m"
-				  classpathref="full-classpath" >
+				  classpathref="runtime.classpath" >
 				<jvmarg value="-Dazureus.config.path=${vuze.config.dir}" />
 				<arg value="--ui=console" />
 			</java>
